@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sistem Bilangan &amp; Konversi — Matdas Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#11131a;
+  --bg-raised:#181b25;
+  --bg-card:#1e2230;
+  --line:#2c3142;
+  --ink:#e7e6e0;
+  --ink-dim:#9aa0b4;
+  --ink-faint:#6b7189;
+  --amber:#e8a33d;
+  --amber-dim:#7a5a26;
+  --mint:#5eead4;
+  --coral:#f2708a;
+  --serif:'Source Serif 4', Georgia, serif;
+  --sans:'Inter', -apple-system, sans-serif;
+  --mono:'JetBrains Mono', 'Courier New', monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--amber-dim);color:#fff;}
+a{color:var(--amber);}
+button{font-family:var(--sans);cursor:pointer;}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+
+/* ---------- shell ---------- */
+#app{display:flex;min-height:100vh;}
+#sidebar{
+  width:280px;flex-shrink:0;background:var(--bg-raised);
+  border-right:1px solid var(--line);padding:20px 14px 90px;
+  overflow-y:auto;height:100vh;position:sticky;top:0;
+}
+#main{flex:1;min-width:0;padding:28px 22px 100px;max-width:760px;margin:0 auto;}
+
+.brand{padding:4px 6px 18px;border-bottom:1px solid var(--line);margin-bottom:16px;}
+.brand .k{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--amber);}
+.brand h1{font-family:var(--serif);font-size:19px;font-weight:600;margin:4px 0 0;line-height:1.3;}
+
+.overall-progress{padding:6px;margin-bottom:18px;}
+.overall-progress .row{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-dim);margin-bottom:6px;}
+.bar{height:6px;background:var(--bg-card);border-radius:99px;overflow:hidden;}
+.bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--mint));border-radius:99px;transition:width .4s ease;}
+
+.navlinks{display:flex;flex-direction:column;gap:2px;margin-bottom:18px;}
+.navlinks button{
+  background:none;border:none;color:var(--ink-dim);text-align:left;
+  padding:9px 10px;border-radius:8px;font-size:14px;display:flex;align-items:center;gap:9px;
+}
+.navlinks button:hover{background:var(--bg-card);color:var(--ink);}
+.navlinks button.active{background:var(--bg-card);color:var(--amber);}
+.navlinks button .ic{font-family:var(--mono);font-size:12px;width:16px;text-align:center;}
+
+.topic-group{margin-bottom:6px;}
+.topic-head{
+  width:100%;background:none;border:none;color:var(--ink);text-align:left;
+  padding:9px 10px;border-radius:8px;font-size:13.5px;font-weight:600;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.topic-head:hover{background:var(--bg-card);}
+.topic-head .status{font-size:11px;font-family:var(--mono);color:var(--ink-faint);flex-shrink:0;}
+.topic-head.done .status{color:var(--mint);}
+.topic-slides{display:flex;flex-direction:column;gap:1px;padding-left:8px;margin:2px 0 8px;border-left:1px solid var(--line);}
+.topic-slides.collapsed{display:none;}
+.slide-btn{
+  background:none;border:none;text-align:left;color:var(--ink-faint);
+  padding:7px 10px;border-radius:7px;font-size:12.5px;margin-left:6px;
+  display:flex;align-items:center;gap:7px;
+}
+.slide-btn:hover{background:var(--bg-card);color:var(--ink-dim);}
+.slide-btn.active{background:var(--bg-card);color:var(--amber);}
+.slide-btn .dot{width:6px;height:6px;border-radius:50%;background:var(--line);flex-shrink:0;}
+.slide-btn.read .dot{background:var(--mint);}
+
+#menu-toggle{display:none;}
+
+/* ---------- content ---------- */
+.crumb{font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);margin-bottom:10px;letter-spacing:.02em;}
+.slide-progress{font-size:11.5px;color:var(--ink-faint);font-family:var(--mono);margin-bottom:4px;}
+
+.page-title{font-family:var(--serif);font-size:28px;font-weight:700;line-height:1.25;margin:2px 0 22px;}
+
+.card{background:var(--bg-card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:16px;}
+.card h3{font-family:var(--serif);font-size:16px;font-weight:600;margin:0 0 10px;color:var(--amber);}
+.card p{margin:0 0 10px;font-size:15px;color:var(--ink);}
+.card p:last-child{margin-bottom:0;}
+.card.faint{border-style:dashed;}
+
+.badge{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:var(--bg);background:var(--amber);padding:2px 8px;border-radius:99px;margin-bottom:10px;}
+.badge.blue{background:var(--mint);}
+
+.terms{display:flex;flex-wrap:wrap;gap:8px;}
+.term{background:var(--bg-raised);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13.5px;flex:1 1 220px;}
+.term b{color:var(--mint);font-family:var(--mono);font-size:13px;}
+
+.formula-box{
+  background:var(--bg-raised);border:1px solid var(--amber-dim);border-radius:10px;
+  padding:16px 18px;font-family:var(--mono);font-size:16px;color:var(--amber);
+  text-align:center;margin:10px 0;overflow-x:auto;
+}
+.formula-box .sub{display:block;font-size:11px;color:var(--ink-faint);margin-top:6px;font-family:var(--sans);}
+
+.example-step{
+  display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:14px;
+}
+.example-step:last-child{border-bottom:none;}
+.example-step .n{color:var(--ink-faint);width:16px;flex-shrink:0;}
+
+.why-box{background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.25);border-radius:10px;padding:14px 16px;}
+.why-box h3{color:var(--mint);}
+
+.extra-box{background:rgba(232,163,61,.06);border:1px dashed var(--amber-dim);border-radius:10px;padding:14px 16px;}
+
+/* confusion button */
+.confuse-wrap{margin:14px 0;}
+.confuse-btn{
+  background:var(--bg-raised);border:1px solid var(--line);color:var(--ink-dim);
+  padding:9px 15px;border-radius:9px;font-size:13.5px;display:inline-flex;gap:8px;align-items:center;
+}
+.confuse-btn:hover{border-color:var(--amber);color:var(--amber);}
+.confuse-levels{display:none;margin-top:12px;gap:8px;flex-direction:column;}
+.confuse-levels.open{display:flex;}
+.confuse-tab-row{display:flex;gap:6px;margin-bottom:8px;}
+.confuse-tab{background:var(--bg-raised);border:1px solid var(--line);color:var(--ink-faint);padding:6px 12px;border-radius:99px;font-size:12px;}
+.confuse-tab.active{background:var(--amber);color:var(--bg);border-color:var(--amber);}
+.confuse-body{background:var(--bg-raised);border-radius:10px;padding:14px 16px;font-size:14px;border:1px solid var(--line);}
+
+/* interactive widgets */
+.widget{background:var(--bg-raised);border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:8px;}
+.widget label{display:block;font-size:12.5px;color:var(--ink-dim);margin-bottom:6px;}
+.widget input[type=text],.widget input[type=number]{
+  background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  padding:9px 12px;font-family:var(--mono);font-size:15px;width:100%;
+}
+.widget input:focus{border-color:var(--amber);}
+.widget-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.widget-row>div{flex:1 1 140px;}
+.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.chip{background:var(--bg);border:1px solid var(--line);color:var(--ink-dim);padding:6px 13px;border-radius:99px;font-size:12.5px;font-family:var(--mono);}
+.chip.active{background:var(--mint);color:var(--bg);border-color:var(--mint);}
+.btn{background:var(--amber);color:var(--bg);border:none;padding:9px 18px;border-radius:8px;font-size:13.5px;font-weight:600;}
+.btn:hover{filter:brightness(1.08);}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink-dim);}
+.btn.ghost:hover{border-color:var(--ink-dim);color:var(--ink);}
+.result-box{margin-top:12px;padding:14px;background:var(--bg);border-radius:9px;border:1px solid var(--line);font-family:var(--mono);font-size:14px;}
+.result-box.ok{border-color:var(--mint);}
+.result-box.err{border-color:var(--coral);}
+.expansion-row{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-family:var(--mono);font-size:13.5px;border-bottom:1px dotted var(--line);flex-wrap:wrap;}
+.expansion-row:last-child{border:none;font-weight:600;color:var(--amber);}
+
+.swatch{width:28px;height:28px;border-radius:6px;border:1px solid var(--line);display:inline-block;vertical-align:middle;margin-right:8px;}
+
+table.datatable{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px;}
+table.datatable th{text-align:left;color:var(--ink-faint);font-weight:500;font-size:11.5px;padding:6px 8px;border-bottom:1px solid var(--line);}
+table.datatable td{padding:7px 8px;border-bottom:1px solid var(--line);font-family:var(--mono);}
+table.datatable tr:last-child td{border-bottom:none;}
+
+/* quiz / check understanding */
+.quiz-box{margin-top:6px;}
+.quiz-q{font-size:14.5px;margin-bottom:10px;font-weight:500;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;}
+.quiz-opt{
+  background:var(--bg-raised);border:1px solid var(--line);border-radius:9px;padding:11px 14px;
+  text-align:left;font-size:14px;color:var(--ink);
+}
+.quiz-opt:hover{border-color:var(--amber);}
+.quiz-opt.correct{border-color:var(--mint);background:rgba(94,234,212,.1);}
+.quiz-opt.wrong{border-color:var(--coral);background:rgba(242,112,138,.1);}
+.quiz-feedback{margin-top:10px;padding:12px 14px;border-radius:9px;font-size:13.5px;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.ok{background:rgba(94,234,212,.08);border:1px solid rgba(94,234,212,.3);color:var(--mint);}
+.quiz-feedback.bad{background:rgba(242,112,138,.08);border:1px solid rgba(242,112,138,.3);color:var(--coral);}
+
+.short-answer input{width:100%;padding:10px 12px;font-family:var(--mono);font-size:14.5px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--ink);margin-bottom:10px;}
+
+.nav-footer{display:flex;justify-content:space-between;gap:10px;margin-top:26px;}
+.nav-footer button{flex:1;background:var(--bg-card);border:1px solid var(--line);color:var(--ink);padding:13px;border-radius:10px;font-size:13.5px;}
+.nav-footer button:hover{border-color:var(--amber);}
+.nav-footer button:disabled{opacity:.35;cursor:default;}
+
+/* flashcards */
+.flashgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media (max-width:640px){.flashgrid{grid-template-columns:1fr;}}
+.flashcard{
+  background:var(--bg-card);border:1px solid var(--line);border-radius:14px;padding:20px;
+  min-height:120px;display:flex;align-items:center;justify-content:center;text-align:center;
+  cursor:pointer;position:relative;font-size:14.5px;
+}
+.flashcard .face-b{display:none;color:var(--mint);}
+.flashcard.flipped .face-a{display:none;}
+.flashcard.flipped .face-b{display:block;}
+.flashcard .tag{position:absolute;top:10px;left:14px;font-family:var(--mono);font-size:10px;color:var(--ink-faint);}
+
+/* mistakes page */
+.mistake-card{background:var(--bg-card);border:1px solid var(--coral);border-left-width:4px;border-radius:10px;padding:16px 18px;margin-bottom:14px;}
+.mistake-card .q{font-weight:600;margin-bottom:8px;}
+.mistake-card .ans-row{font-size:13.5px;margin:4px 0;font-family:var(--mono);}
+.mistake-card .ans-row.wrong{color:var(--coral);}
+.mistake-card .ans-row.right{color:var(--mint);}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--ink-faint);}
+.empty-state .big{font-size:38px;margin-bottom:10px;}
+
+/* topbar mobile */
+#topbar{display:none;}
+
+@media (max-width:860px){
+  #sidebar{
+    position:fixed;left:0;top:0;bottom:0;z-index:50;transform:translateX(-100%);
+    transition:transform .25s ease;box-shadow:0 0 40px rgba(0,0,0,.5);
+  }
+  #sidebar.open{transform:translateX(0);}
+  #overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;}
+  #overlay.open{display:block;}
+  #topbar{
+    display:flex;align-items:center;gap:12px;padding:14px 16px;
+    background:var(--bg-raised);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;
+  }
+  #topbar button{background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 11px;font-size:16px;}
+  #topbar .t{font-family:var(--serif);font-size:15px;font-weight:600;}
+  #main{padding:20px 16px 90px;}
+  .page-title{font-size:23px;}
+  .flashgrid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="overlay" onclick="closeSidebar()"></div>
+<div id="app">
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="k">MATDAS · INTERAKTIF</div>
+      <h1>Sistem Bilangan &amp; Konversi</h1>
+    </div>
+    <div class="overall-progress">
+      <div class="row"><span>Progress keseluruhan</span><span id="overall-pct">0%</span></div>
+      <div class="bar"><span id="overall-bar" style="width:0%"></span></div>
+    </div>
+    <div class="navlinks">
+      <button data-view="home" onclick="go('home')"><span class="ic">◆</span>Beranda</button>
+      <button data-view="flashcards" onclick="go('flashcards')"><span class="ic">▤</span>Flashcard</button>
+      <button data-view="cheatsheet" onclick="go('cheatsheet')"><span class="ic">▥</span>Cheat Sheet</button>
+      <button data-view="quiz" onclick="go('quiz')"><span class="ic">?</span>Kuis Acak</button>
+      <button data-view="mistakes" onclick="go('mistakes')"><span class="ic">✕</span>Kesalahan Gue</button>
+    </div>
+    <div id="topic-nav"></div>
+  </aside>
+
+  <div id="main-wrap" style="flex:1;min-width:0;">
+    <div id="topbar">
+      <button onclick="openSidebar()">☰</button>
+      <span class="t">Matdas Interaktif</span>
+    </div>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   DATA — seluruh 17 slide, dikelompokkan per topik.
+   Sumber: PPT "SISTEM BILANGAN REAL & KONVERSI BILANGAN" (17 slide, lengkap)
+===================================================================== */
+const TOPICS = [
+  {id:'t1', title:'Pendahuluan', slides:[1,2,3]},
+  {id:'t2', title:'Basis 10 — Desimal', slides:[4,5]},
+  {id:'t3', title:'Basis 2 — Biner', slides:[6,7]},
+  {id:'t4', title:'Basis 8 — Oktal', slides:[8]},
+  {id:'t5', title:'Basis 16 — Heksadesimal', slides:[9,10]},
+  {id:'t6', title:'Konversi Bilangan', slides:[11,12,13,14,15]},
+  {id:'t7', title:'Latihan Kelompok', slides:[16]},
+  {id:'t8', title:'Kesimpulan', slides:[17]},
+];
+const TOTAL_SLIDES = 17;
+
+function topicOf(sid){ return TOPICS.find(t=>t.slides.includes(sid)); }
+
+const SLIDES = {
+1:{
+  title:'Judul & Pengantar Mata Kuliah',
+  core:'Slide pembuka materi <b>"Sistem Bilangan Real & Konversi Bilangan"</b>, disusun oleh Fatikha Akfini Anantaputri, M.Sc.',
+  simple:{normal:'Ini halaman judul. Materi yang akan dipelajari adalah tentang sistem bilangan (desimal, biner, oktal, heksadesimal) dan cara mengubah satu sistem bilangan ke sistem bilangan lain.',
+    gampang:'Anggap ini kaya sampul buku — kasih tahu lu bakal belajar apa: angka-angka dan cara "menerjemahkan" angka dari satu bentuk ke bentuk lain.',
+    dasar:'Bayangin lu punya beberapa "bahasa angka" yang berbeda — nanti kita bakal belajar bahasa-bahasa itu dan cara translate di antaranya.'},
+  terms:[],
+  quiz:{q:'Materi ini secara garis besar membahas apa?',opts:['Sistem bilangan dan konversi antar sistem bilangan','Sejarah matematika dunia','Pemrograman lanjutan'],correct:0,
+    explain:'Judul slide menyatakan langsung: Sistem Bilangan Real & Konversi Bilangan.'}
+},
+2:{
+  title:'Tujuan Pembelajaran & Penilaian',
+  core:'Capaian pembelajaran: mahasiswa mampu <b>menerapkan (C3)</b> konsep sistem bilangan real dan sistem bilangan digital (biner, oktal, heksadesimal) dalam kalkulasi data penyiaran digital. Komposisi penilaian: Tugas 20%, UAS 30%, UTS 40%, Partisipasi 10%.',
+  simple:{normal:'Target akhirnya, lu harus bisa MENERAPKAN (bukan cuma hafal) konsep sistem bilangan biner/oktal/heksadesimal untuk hitung-hitungan data digital (misalnya penyiaran).',
+    gampang:'Intinya: bukan cuma tahu teori, tapi harus bisa dipakai buat ngitung data digital beneran.',
+    dasar:'"C3 - menerapkan" itu level di Taksonomi Bloom yang artinya lu harus bisa PAKAI ilmunya buat menyelesaikan soal nyata, bukan cuma menghafal definisi.'},
+  terms:[{t:'C3 (Menerapkan)',d:'Level kognitif Taksonomi Bloom: menggunakan konsep untuk memecahkan masalah konkret.'},
+         {t:'Sistem bilangan digital',d:'Sistem angka yang dipakai komputer: biner, oktal, heksadesimal.'}],
+  extra:'💡 Taksonomi Bloom punya 6 level: mengingat (C1), memahami (C2), menerapkan (C3), menganalisis (C4), mengevaluasi (C5), mencipta (C6). Mata kuliah ini menargetkan level C3.',
+  table:{headers:['Komponen','Bobot'],rows:[['Tugas','20%'],['UAS','30%'],['UTS','40%'],['Partisipasi','10%']]},
+  quiz:{q:'Komponen penilaian dengan bobot terbesar adalah?',opts:['UTS (40%)','UAS (30%)','Tugas (20%)'],correct:0,
+    explain:'UTS memiliki bobot 40%, paling besar dibanding UAS 30%, Tugas 20%, dan Partisipasi 10%.'}
+},
+3:{
+  title:'Pendahuluan: Kenapa Sistem Bilangan Penting',
+  core:'Ada beberapa sistem bilangan yang dipakai dalam sistem digital: <b>desimal, biner, oktal, dan heksadesimal</b>. Desimal paling familier karena dipakai sehari-hari. Pemahaman keempatnya penting bagi siapa pun di bidang multimedia, karena penyimpanan, pengolahan, dan penyajian konten digital semuanya bergantung pada representasi bilangan.',
+  simple:{normal:'Ada 4 "sistem angka" utama yang dipakai di dunia digital. Manusia biasa pakai desimal, tapi mesin/komputer sering pakai biner, oktal, atau heksadesimal untuk merepresentasikan data seperti gambar, audio, dan video.',
+    gampang:'Komputer dan manusia "ngomong" pakai sistem angka yang beda-beda. Kita perlu paham semuanya biar bisa "nerjemahin" data digital.',
+    dasar:'Sama seperti bahasa Indonesia dan Inggris sama-sama bisa dipakai buat menyampaikan pesan yang sama, desimal/biner/oktal/heksadesimal itu cuma cara berbeda buat menuliskan NILAI yang sama.'},
+  terms:[{t:'Desimal',d:'Basis 10 — sistem yang dipakai manusia sehari-hari.'},
+         {t:'Biner',d:'Basis 2 — bahasa asli mesin/komputer.'},
+         {t:'Oktal',d:'Basis 8 — jarang dipakai langsung di multimedia modern.'},
+         {t:'Heksadesimal',d:'Basis 16 — sering dipakai untuk representasi ringkas data biner (warna, memori, dll).'}],
+  quiz:{q:'Kenapa pemahaman sistem bilangan penting bagi praktisi multimedia?',opts:['Karena penyimpanan, pengolahan, dan penyajian konten digital bergantung pada representasi bilangan','Karena wajib untuk sertifikasi desain grafis','Karena hanya dipakai di soal ujian'],correct:0,
+    explain:'PPT menyatakan seluruh proses penyimpanan, pengolahan, dan penyajian konten digital bergantung pada bagaimana data direpresentasikan dalam sistem bilangan.'}
+},
+4:{
+  title:'Basis 10 (Desimal) — Definisi & Rumus',
+  core:'Sistem desimal (basis-10) memiliki 10 simbol angka: 0,1,2,3,4,5,6,7,8,9. Nilai suatu bilangan basis-10 dinyatakan sebagai <b>Σ(N × 10ⁿ)</b>, dengan N = digit (0–9) dan n = posisi digit relatif terhadap koma/satuan (…,-3,-2,-1,0,1,2,3,…).',
+  simple:{normal:'Setiap digit dalam bilangan desimal punya "bobot" berdasarkan posisinya — posisi satuan bobotnya 10⁰=1, puluhan 10¹=10, ratusan 10²=100, dst. Untuk pecahan, posisi setelah koma bobotnya 10⁻¹=0,1 ; 10⁻²=0,01 ; dst.',
+    gampang:'Angka 325 itu sebenarnya = 3 ratusan + 2 puluhan + 5 satuan. Itulah yang dimaksud "posisi menentukan nilai".',
+    dasar:'Coba pikirkan uang: kalau lu punya 3 lembar 100rb, 2 lembar 10rb, 5 lembar 1rb, totalnya 325rb. Sistem desimal kerja persis kayak gitu, tiap "posisi" digit itu kayak "pecahan uang" yang beda nilai.'},
+  terms:[{t:'Basis / Radix',d:'Jumlah simbol unik yang dipakai sistem bilangan (basis-10 punya 10 simbol: 0-9).'},
+         {t:'N',d:'Nilai digit, untuk basis-10 rentangnya 0 sampai 9.'},
+         {t:'n (eksponen)',d:'Posisi digit dihitung dari titik desimal: ke kiri positif (0,1,2,…), ke kanan negatif (-1,-2,…).'}],
+  formula:{expr:'Σ (N × 10ⁿ)',sub:'N = 0..9, n = posisi digit terhadap koma (…,-2,-1,0,1,2,…)'},
+  examples:[
+    {label:'325₁₀',steps:['325₁₀ = 3×10² + 2×10¹ + 5×10⁰','= 300 + 20 + 5 = 325']},
+    {label:'0,61₁₀',steps:['0,61₁₀ = 0×10⁰ + 6×10⁻¹ + 1×10⁻²','= 0 + 0,6 + 0,01 = 0,61']},
+    {label:'9407,108₁₀',steps:['9407,108₁₀ = 9×10³ + 4×10² + 7×10¹ + 0×10⁰ + 1×10⁻¹ + 0×10⁻² + 8×10⁻³','= 9000+400+70+0+0,1+0+0,008 = 9407,108']},
+  ],
+  why:'Notasi posisional ini adalah dasar SEMUA sistem bilangan lain di materi ini — hanya angka basisnya (10, 2, 8, 16) yang berubah. Kalau lu paham konsep ini untuk desimal, konsep yang sama otomatis berlaku untuk biner/oktal/heksadesimal.',
+  widget:'positional10',
+  quiz:{q:'Pada bilangan 325₁₀, berapa nilai posisi (bobot) dari digit "3"?',opts:['10² = 100','10¹ = 10','10⁰ = 1'],correct:0,
+    explain:'Digit "3" berada di posisi ke-2 dari kanan (dihitung dari 0), sehingga bobotnya 10² = 100 → kontribusinya 3×100=300.'}
+},
+5:{
+  title:'Basis 10 dalam Dunia Multimedia',
+  core:'Basis 10 justru paling sering muncul di permukaan (user-facing) pada software multimedia, karena manusia berinteraksi langsung dengan angka itu. Contoh: <b>resolusi</b> (1920×1080 Full HD, 3840×2160 4K), <b>frame rate</b> (24/30/60 fps), sample rate audio, bitrate audio/video, ukuran file, kualitas kompresi.',
+  simple:{normal:'Meskipun komputer "berpikir" dalam biner, banyak angka yang ditampilkan ke pengguna (di software edit video/foto) tetap dalam bentuk desimal biasa agar mudah dibaca manusia.',
+    gampang:'Pas lu buka aplikasi edit video dan lihat "1920x1080" atau "30fps", itu semua angka desimal — dipilih karena gampang dibaca manusia, bukan karena itu bentuk asli datanya di dalam komputer.',
+    dasar:'Ibaratnya, komputer "ngomong" biner di belakang layar, tapi pas ngobrol sama lu (lewat software), dia otomatis translate ke desimal biar lu paham.'},
+  terms:[{t:'Resolusi',d:'Jumlah piksel gambar/video, misal 1920×1080 (Full HD) atau 3840×2160 (4K).'},
+         {t:'Frame rate (fps)',d:'Jumlah frame gambar yang ditampilkan per detik pada video.'},
+         {t:'Sample rate',d:'Jumlah sampel audio yang diambil per detik.'},
+         {t:'Bitrate',d:'Jumlah data (bit) yang diproses per detik pada audio/video.'}],
+  quiz:{q:'Manakah contoh penggunaan basis 10 (desimal) di dunia multimedia menurut materi?',opts:['Resolusi video 1920×1080 dan frame rate 30fps','Kode warna heksadesimal #FF5733','Nilai bit biner 11111111'],correct:0,
+    explain:'Resolusi (1920×1080, 3840×2160) dan frame rate (24/30/60 fps) adalah contoh angka desimal user-facing yang disebutkan di materi.'}
+},
+6:{
+  title:'Basis 2 (Biner) — Definisi & Rumus',
+  core:'Sistem biner (basis-2) hanya punya 2 simbol angka: 0 dan 1. Nilai suatu bilangan basis-2 dinyatakan sebagai <b>Σ(N × 2ⁿ)</b>, dengan N = 0 atau 1, dan n = posisi digit relatif terhadap koma/satuan.',
+  simple:{normal:'Sama seperti desimal, tapi basisnya 2 dan digitnya cuma 0 atau 1. Posisi digit tetap menentukan bobot: 2⁰=1, 2¹=2, 2²=4, 2³=8, dst.',
+    gampang:'Biner itu kayak "saklar nyala/mati" — cuma ada dua pilihan angka: 0 atau 1. Tapi posisinya tetap bikin nilainya beda-beda.',
+    dasar:'Bayangin cuma ada 2 kartu: "0" dan "1". Susunan kartu itu (posisinya) yang menentukan berapa nilai totalnya, mirip desimal tapi versi paling sederhana.'},
+  terms:[{t:'Bit',d:'Satuan terkecil data biner, nilainya 0 atau 1.'},
+         {t:'2ⁿ',d:'Bobot posisi pada biner: posisi ke-0 (2⁰=1), ke-1 (2¹=2), ke-2 (2²=4), dst.'}],
+  formula:{expr:'Σ (N × 2ⁿ)',sub:'N = 0 atau 1, n = posisi digit terhadap koma'},
+  examples:[
+    {label:'1101₂',steps:['1101₂ = 1×2³ + 1×2² + 0×2¹ + 1×2⁰','= 8+4+0+1 = 13₁₀']},
+    {label:'0,101₂',steps:['0,101₂ = 0×2⁰ + 1×2⁻¹ + 0×2⁻² + 1×2⁻³','= 0+0,5+0+0,125 = 0,625₁₀']},
+    {label:'11,01₂',steps:['11,01₂ = 1×2¹ + 1×2⁰ + 0×2⁻¹ + 1×2⁻²','= 2+1+0+0,25 = 3,25₁₀']},
+  ],
+  widget:'positional2',
+  quiz:{q:'Berapa nilai desimal dari 1101₂?',opts:['13','11','9'],correct:0,
+    explain:'1101₂ = 1×2³+1×2²+0×2¹+1×2⁰ = 8+4+0+1 = 13.'}
+},
+7:{
+  title:'Biner: Bahasa Asli Mesin',
+  core:'Biner adalah bahasa asli mesin — satu-satunya bentuk yang benar-benar disimpan di memori, hard disk, dan ditransmisikan lewat jaringan. Semua gambar, audio, video, dan teks pada akhirnya adalah barisan 0 dan 1. Desimal dan heksadesimal hanyalah cara manusia membaca biner lebih mudah. Contoh: <b>nilai piksel (bit depth)</b> — tiap kanal warna (R,G,B) disimpan sebagai 8 bit biner: R=11111111 (255), G=01010111 (87), B=00110011 (51). Gambar "8-bit per channel" berarti tiap warna punya 2⁸=256 kemungkinan nilai (0–255).',
+  simple:{normal:'Apapun jenis datanya (gambar, suara, video, teks), pada level paling dasar semuanya cuma barisan 0 dan 1. Desimal dan heksadesimal cuma "terjemahan" untuk memudahkan manusia baca biner itu.',
+    gampang:'Di dalam hard disk lu, TIDAK ADA angka desimal atau huruf — semuanya cuma 0 dan 1 yang sangat panjang. Yang lu lihat di layar (angka, huruf, gambar) itu hasil "terjemahan" dari 0-1 tadi.',
+    dasar:'Anggap biner itu kayak Kode Morse — cuma titik dan garis, tapi bisa merepresentasikan huruf apapun. Biner juga gitu: cuma 0 dan 1, tapi bisa merepresentasikan APAPUN kalau susunannya panjang dan tepat.'},
+  terms:[{t:'Bit depth',d:'Jumlah bit yang dipakai untuk menyimpan nilai tiap kanal warna piksel.'},
+         {t:'Kanal warna (R,G,B)',d:'Komponen Merah, Hijau, Biru yang membentuk satu warna piksel.'},
+         {t:'8-bit per channel',d:'Tiap kanal warna disimpan pakai 8 bit, artinya 2⁸=256 kemungkinan nilai (0-255).'}],
+  why:'Kenapa 8 bit menghasilkan 256 nilai? Karena tiap bit punya 2 kemungkinan (0/1), dan dengan 8 bit maka totalnya 2×2×2×2×2×2×2×2 = 2⁸ = 256 kombinasi berbeda.',
+  widget:'rgbBitDepth',
+  quiz:{q:'Kenapa "8-bit per channel" menghasilkan 256 kemungkinan nilai warna?',opts:['Karena 2⁸ = 256, tiap bit punya 2 kemungkinan (0/1)','Karena 8 dikali 32 = 256','Karena aturan baku industri tanpa alasan matematis'],correct:0,
+    explain:'Dengan 8 bit, tiap bit punya 2 kemungkinan, sehingga total kombinasi = 2⁸ = 256 (nilai 0 sampai 255).'}
+},
+8:{
+  title:'Basis 8 (Oktal) — Definisi, Rumus & Contoh',
+  core:'Sistem oktal (basis-8) memiliki 8 simbol angka: 0,1,2,3,4,5,6,7. Nilai suatu bilangan basis-8 dinyatakan sebagai <b>Σ(N × 8ⁿ)</b>, dengan N=0..7. Realitanya, basis 8 tidak banyak dipakai dalam multimedia.',
+  simple:{normal:'Sama seperti desimal dan biner, cuma basisnya 8 dan digit yang valid hanya 0 sampai 7 (tidak ada digit 8 atau 9 di oktal).',
+    gampang:'Oktal itu "desimal versi 8 simbol" — jarang kepake langsung di dunia multimedia, tapi tetap penting dipahami konsepnya karena polanya sama dengan basis lain.',
+    dasar:'Coba bayangin sistem penomoran yang cuma punya 8 jari (bukan 10 kayak manusia) — itulah oktal. Konsepnya SAMA PERSIS dengan desimal, cuma "jarinya" lebih sedikit.'},
+  terms:[{t:'Basis 8 / Oktal',d:'Sistem bilangan dengan 8 simbol: 0-7.'}],
+  formula:{expr:'Σ (N × 8ⁿ)',sub:'N = 0..7, n = posisi digit terhadap koma'},
+  examples:[{label:'647,35₈',steps:['647,35₈ = 6×8² + 4×8¹ + 7×8⁰ + 3×8⁻¹ + 5×8⁻²','= 384+32+7+0,375+0,078125','= 423,453125₁₀']}],
+  extra:'💡 Oktal historisnya dipakai di sistem komputer lama (misalnya beberapa arsitektur mainframe) karena 8 = 2³ sehingga 1 digit oktal = tepat 3 bit biner. Namun di dunia multimedia modern, heksadesimal (16=2⁴, 1 digit = 4 bit) jauh lebih umum dipakai.',
+  widget:'positional8',
+  quiz:{q:'Digit mana yang TIDAK valid dalam sistem oktal?',opts:['8','5','3'],correct:0,
+    explain:'Oktal hanya memakai simbol 0-7, sehingga digit 8 tidak valid.'}
+},
+9:{
+  title:'Basis 16 (Heksadesimal) — Definisi & Rumus',
+  core:'Sistem heksadesimal (basis-16) memiliki 16 simbol angka. Karena digit 0-9 tidak cukup, ditambahkan 6 simbol huruf: <b>A=10, B=11, C=12, D=13, E=14, F=15</b> (dalam desimal). Simbol lengkapnya: 0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F. Nilai dinyatakan sebagai <b>Σ(N × 16ⁿ)</b>.',
+  simple:{normal:'Heksadesimal butuh 16 simbol berbeda, tapi angka Arab cuma ada 10 (0-9), jadi 6 sisanya "dipinjam" dari huruf A sampai F, yang masing-masing mewakili nilai 10 sampai 15.',
+    gampang:'Kalau desimal berhenti di 9, heksadesimal "lanjut ngitung" pakai huruf: ...,8,9,A(=10),B(=11),C(=12),D(=13),E(=14),F(=15), baru abis itu "naik" ke 10 (yang nilainya = 16 dalam desimal).',
+    dasar:'Bayangin kalau lu cuma punya 10 jari tapi butuh hitung sampai 16 kombinasi berbeda — lu "pinjam" 6 simbol tambahan (huruf) buat mewakili angka 10-15 itu.'},
+  terms:[{t:'A, B, C, D, E, F',d:'Simbol heksadesimal untuk nilai desimal 10, 11, 12, 13, 14, 15.'},
+         {t:'16ⁿ',d:'Bobot posisi pada heksadesimal.'}],
+  formula:{expr:'Σ (N × 16ⁿ)',sub:'N = 0..9, A..F (0-15), n = posisi digit terhadap koma'},
+  examples:[
+    {label:'584AED₁₆',steps:['584AED₁₆ = 5×16⁵ + 8×16⁴ + 4×16³ + 10×16² + 14×16¹ + 13×16⁰','= 5.242.880+524.288+16.384+2.560+224+13','= 5.786.349₁₀']},
+    {label:'E,1A₁₆',steps:['E,1A₁₆ = 14×16⁰ + 1×16⁻¹ + 10×16⁻²','= 14+0,0625+0,0390625 = 14,0664063₁₀']},
+  ],
+  widget:'positional16',
+  quiz:{q:'Berapa nilai desimal dari digit heksadesimal "C"?',opts:['12','13','10'],correct:0,
+    explain:'Urutan A=10, B=11, C=12, D=13, E=14, F=15 — jadi C=12.'}
+},
+10:{
+  title:'Heksadesimal dalam Praktik Multimedia',
+  core:'Contoh konkret pemakaian heksadesimal: <b>kode warna digital</b> (web & desain grafis) — warna RGB 24-bit ditulis sebagai 6 digit heksadesimal (2 digit per kanal R,G,B). Contoh lain: identifikasi format file, codec video/audio, header streaming (RTP).',
+  simple:{normal:'Satu kode warna seperti #FF5733 sebenarnya adalah 3 pasang digit heksadesimal: FF (kanal Merah), 57 (kanal Hijau), 33 (kanal Biru). Tiap pasang mewakili nilai 0-255 dalam heksadesimal (00 sampai FF).',
+    gampang:'Kode warna di CSS/Photoshop itu cuma "singkatan" heksadesimal dari 3 angka RGB biasa (0-255). #FFFFFF = putih karena semua kanal maksimal (255).',
+    dasar:'Bayangin tiap warna itu resep dari 3 bahan: Merah, Hijau, Biru — masing-masing takarannya 0 sampai 255. Heksadesimal cuma cara nulis takaran itu lebih ringkas (2 digit dibanding 3 digit desimal).'},
+  terms:[{t:'RGB 24-bit',d:'Warna dibentuk dari 3 kanal (R,G,B), masing-masing 8 bit (0-255), total 24 bit.'},
+         {t:'2 digit heksadesimal per kanal',d:'Karena 1 digit hex mewakili 4 bit, dan 1 kanal = 8 bit, maka butuh 2 digit hex per kanal.'}],
+  table:{headers:['Kode Hex','R','G','B','Warna'],rows:[['#FFFFFF','FF','FF','FF','Putih'],['#000000','00','00','00','Hitam'],['#FF5733','FF','57','33','Oranye-merah'],['#1B98E0','1B','98','E0','Biru cyan']]},
+  extra:'💡 Selain warna, heksadesimal juga dipakai untuk melihat isi file mentah (hex editor) — misalnya untuk mengenali format file lewat "magic number" di beberapa byte pertamanya, atau membaca header paket data streaming seperti RTP.',
+  widget:'colorConverter',
+  quiz:{q:'Kenapa satu kanal warna (misalnya Merah) butuh tepat 2 digit heksadesimal?',opts:['Karena 1 kanal = 8 bit, dan 1 digit hex = 4 bit, jadi 8÷4=2 digit','Karena aturan desain grafis yang sembarang','Karena warna cuma bisa direpresentasikan pakai 2 digit'],correct:0,
+    explain:'1 digit heksadesimal mewakili 4 bit. Karena 1 kanal warna disimpan dalam 8 bit, dibutuhkan 8÷4 = 2 digit heksadesimal.'}
+},
+11:{
+  title:'Konversi Bilangan: Basis 10 ke Basis-n (Cara 1)',
+  core:'Ada 2 cara mengonversi bilangan dari Basis 10 ke Basis-n. <b>Cara 1: Konversi dengan jumlah dari suku-suku</b> yang dapat ditulis sebagai (bilangan)₁₀ = Σ(N × nᵃ), dengan a menyatakan bilangan bulat, n menyatakan basis tujuan, dan N angka yang diizinkan dalam basis-n.',
+  simple:{normal:'Cara pertama konversi adalah kebalikan dari rumus posisional yang sudah kita pelajari: kita "pecah" bilangan desimal menjadi jumlah pangkat-pangkat basis tujuan, lalu susun digitnya.',
+    gampang:'Kalau sebelumnya kita ubah "digit → nilai desimal", sekarang kebalikannya: "nilai desimal → susunan digit di basis lain", dengan cara mencari kombinasi pangkat basis tujuan yang paling pas.',
+    dasar:'Ini seperti menyusun kembali puzzle — kita tahu total nilainya (misal 98), dan kita coba cari "kepingan" (pangkat 2, pangkat 8, dst) mana saja yang kalau dijumlahkan hasilnya pas 98.'},
+  terms:[{t:'a',d:'Bilangan bulat yang menyatakan posisi pangkat.'},
+         {t:'n',d:'Basis tujuan konversi (misal 2, 8, atau 16).'},
+         {t:'N',d:'Digit yang diizinkan dalam basis-n tersebut.'}],
+  formula:{expr:'(Bilangan)₁₀ = Σ (N × nᵃ)',sub:'a = bilangan bulat, n = basis tujuan, N = digit yang diizinkan di basis-n'},
+  quiz:{q:'Pada Cara 1 (jumlah suku-suku), apa yang dicari untuk menyusun hasil konversi?',opts:['Kombinasi pangkat basis tujuan yang jumlahnya sama dengan bilangan desimal asal','Sisa pembagian berulang','Tabel ASCII yang sesuai'],correct:0,
+    explain:'Cara 1 menulis bilangan sebagai Σ(N×nᵃ) — mencari kombinasi pangkat basis tujuan (n) yang totalnya sama dengan bilangan desimal asal.'}
+},
+12:{
+  title:'Contoh Cara 1: 98₁₀ ke Basis-2',
+  core:'Contoh penerapan Cara 1: ubah 98₁₀ ke basis-2. Dicari kombinasi pangkat 2 yang jumlahnya 98, lalu digit-digitnya disusun sesuai posisi pangkatnya.',
+  simple:{normal:'98 dipecah menjadi kombinasi pangkat 2 terbesar yang muat: 2⁶=64, sisa 34; 2⁵=32, sisa 2; 2¹=2, sisa 0. Maka 98 = 2⁶+2⁵+2¹, dan digit di posisi lain diisi 0.',
+    gampang:'Anggap kayak nyusun uang pecahan 64rb+32rb+2rb=98rb — sisanya (posisi 16rb,8rb,4rb,1rb) gak dipakai jadi ditulis 0.',
+    dasar:'Cari pangkat 2 terbesar yang ≤98 (yaitu 64=2⁶), kurangi, lalu ulangi lagi untuk sisanya, sampai sisa=0.'},
+  examples:[{label:'98₁₀ → basis 2',steps:[
+    '98₁₀ = N×2⁶ + N×2⁵ + ... + N×2¹ (pecah 98 jadi pangkat 2 yang bisa dipakai)',
+    '= 1×2⁶ + 1×2⁵ + 0×2⁴ + 0×2³ + 0×2² + 1×2¹ + 0×2⁰',
+    '(cek semua posisi dari 2⁶ sampai 2⁰)',
+    '= 1 1 0 0 0 1 0',
+    'Jadi 98₁₀ = 1100010₂'
+  ]}],
+  why:'Cara ini efektif untuk bilangan kecil karena kita bisa langsung "menebak" pangkat besar yang muat. Untuk bilangan besar, cara ini jadi lebih ribet — makanya ada Cara 2 (pembagian berulang) di slide berikutnya, yang lebih sistematis.',
+  widget:'termConverter',
+  quiz:{q:'Pada hasil 98₁₀ = 1100010₂, kenapa posisi 2⁴, 2³, dan 2² bernilai 0?',opts:['Karena kombinasi 2⁶+2⁵+2¹ sudah pas menghasilkan 98, sehingga posisi lainnya tidak dibutuhkan','Karena posisi genap selalu 0 di sistem biner','Karena kesalahan penulisan pada slide'],correct:0,
+    explain:'98 = 64+32+2 = 2⁶+2⁵+2¹. Karena kombinasi ini sudah tepat 98, posisi pangkat lain (2⁴,2³,2²,2⁰) tidak diperlukan sehingga diisi 0.'}
+},
+13:{
+  title:'Konversi Basis 10 ke Basis-n (Cara 2: Pembagian Berulang)',
+  core:'<b>Cara 2: Konversi dengan pembagian berulang.</b> Cara ini baik untuk bilangan desimal kecil maupun besar. Bilangan desimal dan hasil baginya dibagi berulang dengan basis tujuan, sisanya dicatat sampai hasil bagi = 0. Hasil konversi: sisa pertama di posisi paling kecil, sisa terakhir di posisi paling besar.',
+  simple:{normal:'Metode ini lebih sistematis dan cocok untuk bilangan berapa pun: bagi bilangan desimal dengan basis tujuan berulang kali, catat sisanya tiap kali, sampai hasil baginya jadi 0. Susun semua sisa dari BAWAH ke ATAS untuk mendapat jawabannya.',
+    gampang:'Bagi terus sampai hasilnya 0, catat "sisa"-nya tiap langkah, terus baca sisanya dari BAWAH ke ATAS — itu jawabannya.',
+    dasar:'Ini kayak "mengupas bawang" — tiap kali dibagi, kita "ambil" satu digit (sisanya), sampai gak ada lagi yang bisa dibagi (hasil bagi=0).'},
+  terms:[{t:'Sisa (remainder)',d:'Angka sisa dari pembagian, menjadi salah satu digit hasil konversi.'},
+         {t:'Hasil bagi (quotient)',d:'Hasil pembagian yang akan dibagi lagi pada langkah berikutnya.'}],
+  why:'Kenapa dibaca dari bawah ke atas? Karena sisa PERTAMA yang didapat sebenarnya adalah digit dengan bobot posisi PALING KECIL (paling kanan), sedangkan sisa TERAKHIR adalah digit dengan bobot PALING BESAR (paling kiri) — kebalikan urutan saat kita menghitungnya.',
+  quiz:{q:'Pada metode pembagian berulang, sisa pembagian PERTAMA menjadi digit di posisi mana?',opts:['Posisi paling kanan (bobot terkecil)','Posisi paling kiri (bobot terbesar)','Selalu di tengah'],correct:0,
+    explain:'Sisa pertama dituliskan pada posisi yang paling kecil (paling kanan), dan sisa terakhir pada posisi paling besar (paling kiri).'}
+},
+14:{
+  title:'Contoh Cara 2: 98₁₀ ke Basis-2 (Pembagian Berulang)',
+  core:'Contoh: ubah 98₁₀ ke basis-2 dengan pembagian berulang oleh 2, dicatat sisanya tiap langkah sampai hasil bagi 0. Sisa dituliskan dari bawah ke atas: <b>1100010₂ = 98₁₀</b>.',
+  simple:{normal:'98 dibagi 2 berulang, sisa dicatat tiap kali, sampai hasil bagi jadi 0. Kalau sisa-sisanya dibaca dari bawah ke atas, itulah bentuk binernya.',
+    gampang:'Bagi 2 terus, catat sisanya, sampai hasilnya 0 — baca sisa dari bawah ke atas.',
+    dasar:'Anggap kayak permainan "bagi rata koin" berulang — tiap bagi 2, kadang ada 1 koin sisa (gak bisa dibagi rata), itu yang dicatat.'},
+  examples:[{label:'98₁₀ → basis 2 (pembagian berulang)',steps:[
+    '98 ÷ 2 = 49 sisa 0','49 ÷ 2 = 24 sisa 1','24 ÷ 2 = 12 sisa 0','12 ÷ 2 = 6 sisa 0',
+    '6 ÷ 2 = 3 sisa 0','3 ÷ 2 = 1 sisa 1','1 ÷ 2 = 0 sisa 1',
+    'Sisa dibaca dari BAWAH ke ATAS: 1 1 0 0 0 1 0','Jadi 98₁₀ = 1100010₂'
+  ]}],
+  widget:'divisionConverter',
+  quiz:{q:'Hasil akhir konversi 98₁₀ ke basis-2 menggunakan pembagian berulang adalah?',opts:['1100010₂','1010101₂','1100100₂'],correct:0,
+    explain:'Dari sisa-sisa pembagian berulang (0,1,0,0,0,1,1) yang dibaca dari bawah ke atas, didapat 1100010₂ — sama seperti hasil Cara 1 di slide sebelumnya.'}
+},
+15:{
+  title:'Studi Kasus: RGB ke Heksadesimal (Konversi Basis 10 ke Basis 16)',
+  core:'Studi kasus multimedia: software desainer menampilkan warna sebagai rgb(34,177,76) (hijau). Editor video/CSS membutuhkan format heksadesimal. Dengan pembagian berulang oleh 16 pada tiap kanal: 34→22, 177→B1, 76→4C. Sehingga kode warna heksadesimal = <b>#22B14C</b>.',
+  simple:{normal:'Metode pembagian berulang (Cara 2) dipakai di sini, tapi basisnya 16, bukan 2. Tiap kanal warna (R,G,B) dikonversi terpisah, lalu digabung jadi satu kode hex 6 digit.',
+    gampang:'Nilai R,G,B (34,177,76) masing-masing "diterjemahkan" ke heksadesimal satu-satu, terus digabung: 22 + B1 + 4C = #22B14C.',
+    dasar:'Ini penerapan nyata dari konsep pembagian berulang yang barusan kita pelajari, tapi dipakai buat kasus sehari-hari: mengubah kode warna desainer jadi kode warna CSS/hex.'},
+  examples:[
+    {label:'34 → hex',steps:['34 ÷ 16 = 2 sisa 2 → ditulis 2, 2 = "22"']},
+    {label:'177 → hex',steps:['177 ÷ 16 = 11 sisa 1 → ditulis 11(B), 1 = "B1"']},
+    {label:'76 → hex',steps:['76 ÷ 16 = 4 sisa 12 → ditulis 4, 12(C) = "4C"']},
+  ],
+  why:'Kenapa sisa 11 ditulis "B" dan sisa 12 ditulis "C"? Karena di heksadesimal, nilai 10-15 direpresentasikan dengan huruf A-F (10=A, 11=B, 12=C, 13=D, 14=E, 15=F) — persis seperti dipelajari di slide Basis 16.',
+  widget:'rgbToHex',
+  quiz:{q:'Warna rgb(34,177,76) dalam kode heksadesimal adalah?',opts:['#22B14C','#221B4C','#B122C4'],correct:0,
+    explain:'34→22(hex), 177→B1(hex), 76→4C(hex), sehingga digabung menjadi #22B14C.'}
+},
+16:{
+  title:'Latihan Kelompok',
+  core:'7 soal latihan kelompok (1 kelompok 5 orang) yang menggabungkan konsep konversi bilangan, kode warna, dan struktur file digital.',
+  simple:{normal:'Ini bagian latihan soal — coba kerjakan sendiri dulu tiap soal, baru cek jawabannya.',gampang:'Waktunya praktik! Coba jawab dulu sebelum lihat kunci jawabannya.',dasar:'Kerjakan pelan-pelan pakai rumus dan cara yang sudah dipelajari di slide-slide sebelumnya.'},
+  isGroupExercise:true,
+  quiz:null
+},
+17:{
+  title:'Kesimpulan',
+  core:'Kemampuan melakukan konversi antar sistem bilangan sangat diperlukan dalam praktik multimedia, karena setiap tahapan pengolahan data digital — penyimpanan, pemrosesan, hingga penyajian — melibatkan perubahan bentuk representasi bilangan sesuai kebutuhan. Dengan memahami konsep dan teknik konversi ini, praktisi multimedia dapat memahami cara kerja sistem di balik layar, sehingga mampu bekerja lebih efisien dalam merancang, mengedit, maupun mengoptimalkan produk multimedia.',
+  simple:{normal:'Rangkuman: semua materi (desimal, biner, oktal, heksadesimal, dan cara konversinya) itu penting karena data digital selalu berpindah bentuk representasi di berbagai tahap prosesnya.',
+    gampang:'Intinya: paham sistem bilangan bikin lu ngerti "di balik layar"-nya dunia digital, jadi kerja multimedia lu makin efisien.',
+    dasar:'Semua yang udah dipelajari (basis 10,2,8,16, dan cara konversi) itu fondasi buat ngerti gimana komputer beneran nyimpen dan ngolah gambar/video/audio.'},
+  quiz:{q:'Menurut kesimpulan materi, kenapa kemampuan konversi bilangan penting bagi praktisi multimedia?',opts:['Karena setiap tahap pengolahan data digital melibatkan perubahan representasi bilangan','Karena wajib untuk lulus ujian saja','Karena hanya dipakai programmer, bukan desainer'],correct:0,
+    explain:'Kesimpulan menyatakan setiap tahapan pengolahan data digital (penyimpanan, pemrosesan, penyajian) melibatkan perubahan bentuk representasi bilangan sesuai kebutuhan.'}
+},
+};
+
+// soal latihan kelompok slide 16 (divalidasi otomatis)
+const GROUP_EXERCISES = [
+  {n:1, q:'Hex editor menunjukkan 4 byte pertama sebuah file: 47 49 46 38. Berdasarkan tabel magic number, file tersebut merupakan format apa?',
+   type:'text', accept:['gif'], answerDisplay:'GIF',
+   explain:'Nilai hex 47 49 46 38 jika diterjemahkan ke ASCII adalah "G","I","F","8" → "GIF8", yaitu magic number/signature awal file format GIF (biasanya diikuti "7a" atau "9a").'},
+  {n:2, q:'Byte pertama header sebuah paket streaming bernilai hex C0. Ubah ke bentuk biner, lalu sebutkan berapa bit yang bernilai 1 pada byte tersebut.',
+   type:'text', accept:['11000000 2','11000000,2','1100 0000 2','11000000 - 2 bit','11000000 dan 2'], answerDisplay:'11000000₂, ada 2 bit bernilai 1',
+   explain:'C0 (hex) = 1100 0000 (biner). Menghitung digit "1": ada 2 buah (di posisi paling kiri).'},
+  {n:3, q:'Jika satu byte pada header magic number file gambar (soal nomor 1) berubah nilainya karena error saat transfer data, apa dampaknya terhadap file tersebut? (jelaskan singkat, jawaban terbuka)',
+   type:'open', answerDisplay:'Contoh jawaban model',
+   explain:'Aplikasi/sistem mengenali jenis file dari magic number di byte-byte pertamanya. Jika satu byte itu berubah/rusak, sistem bisa gagal mengenali format file tersebut — file dianggap corrupt, tidak bisa dibuka, atau salah diidentifikasi sebagai format lain.'},
+  {n:4, q:'Kode warna #4B0082 (ungu tua/indigo) digunakan pada desain poster event. Tentukan nilai desimal masing-masing kanal R, G, dan B.',
+   type:'text', accept:['75 0 130','75,0,130','r=75 g=0 b=130','75 0 130 desimal'], answerDisplay:'R=75, G=0, B=130',
+   explain:'4B(hex)=75, 00(hex)=0, 82(hex)=130. Jadi R=75, G=0, B=130.'},
+  {n:5, q:'Pada struktur file MP4, 4 byte pertama sebuah box menyatakan ukurannya dalam hex: 00 00 00 18. Berapa ukuran box tersebut dalam desimal (byte)?',
+   type:'text', accept:['24','24 byte','24 bytes'], answerDisplay:'24 byte',
+   explain:'Hex 00 00 00 18 = 0x18 = 1×16+8 = 24 dalam desimal.'},
+  {n:6, q:'Satu piksel pada gambar grayscale bernilai desimal 192. Ubah nilai tersebut ke bentuk biner 8-bit.',
+   type:'text', accept:['11000000','1100 0000'], answerDisplay:'11000000₂',
+   explain:'192 = 128+64 = 2⁷+2⁶ → 11000000 dalam biner 8-bit.'},
+  {n:7, q:'Sebuah nilai biner header adalah 1010 1111. Tuliskan nilai tersebut dalam heksadesimal, lalu tentukan berapa byte yang diwakilinya.',
+   type:'text', accept:['af 1','af, 1 byte','af 1 byte','af'], answerDisplay:'AF (1 byte)',
+   explain:'Kelompokkan per 4 bit: 1010=A(10), 1111=F(15) → AF. 8 bit = 1 byte, jadi mewakili 1 byte.'},
+];
+
+// flashcards ringkas seluruh materi
+const FLASHCARDS = [
+  {tag:'Slide 3',a:'Ada berapa sistem bilangan utama dalam materi ini?',b:'4: Desimal (basis-10), Biner (basis-2), Oktal (basis-8), Heksadesimal (basis-16)'},
+  {tag:'Slide 4',a:'Rumus umum notasi posisional basis-10?',b:'Σ(N × 10ⁿ), N=0..9'},
+  {tag:'Slide 6',a:'Rumus umum notasi posisional basis-2?',b:'Σ(N × 2ⁿ), N=0 atau 1'},
+  {tag:'Slide 8',a:'Rumus umum notasi posisional basis-8?',b:'Σ(N × 8ⁿ), N=0..7'},
+  {tag:'Slide 9',a:'Rumus umum notasi posisional basis-16?',b:'Σ(N × 16ⁿ), N=0..9,A..F'},
+  {tag:'Slide 9',a:'Nilai desimal dari simbol A, B, C, D, E, F?',b:'A=10, B=11, C=12, D=13, E=14, F=15'},
+  {tag:'Slide 7',a:'Kenapa disebut biner "bahasa asli mesin"?',b:'Karena biner satu-satunya bentuk yang benar-benar disimpan di memori/hard disk dan ditransmisikan lewat jaringan; desimal & hex hanya cara baca manusia'},
+  {tag:'Slide 7',a:'Berapa kemungkinan nilai warna pada 8-bit per channel?',b:'2⁸ = 256 (nilai 0–255)'},
+  {tag:'Slide 10',a:'Kenapa 1 kanal warna butuh 2 digit heksadesimal?',b:'1 digit hex = 4 bit, 1 kanal = 8 bit, jadi 8÷4=2 digit'},
+  {tag:'Slide 11-12',a:'Cara 1 konversi basis 10 ke basis-n disebut apa?',b:'Konversi dengan jumlah suku-suku: (Bilangan)₁₀ = Σ(N×nᵃ)'},
+  {tag:'Slide 13-14',a:'Cara 2 konversi basis 10 ke basis-n disebut apa?',b:'Konversi dengan pembagian berulang — sisa dibaca dari bawah ke atas'},
+  {tag:'Slide 14',a:'98₁₀ dalam biner adalah?',b:'1100010₂'},
+  {tag:'Slide 15',a:'Warna rgb(34,177,76) dalam hex?',b:'#22B14C'},
+  {tag:'Slide 5',a:'Sebutkan 2 contoh basis 10 (desimal) user-facing di multimedia',b:'Resolusi (1920×1080) dan frame rate (24/30/60 fps)'},
+  {tag:'Slide 16',a:'Hex 47 49 46 38 adalah magic number format file apa?',b:'GIF (dari ASCII "GIF8")'},
+];
+
+/* =====================================================================
+   STATE & UTIL
+===================================================================== */
+const LS_READ='matdas_read_slides', LS_MISTAKES='matdas_mistakes', LS_FLIP='matdas_flip';
+function getReadSlides(){ try{return JSON.parse(localStorage.getItem(LS_READ)||'[]');}catch(e){return [];} }
+function markRead(sid){
+  const arr = getReadSlides();
+  if(!arr.includes(sid)){ arr.push(sid); localStorage.setItem(LS_READ, JSON.stringify(arr)); }
+  updateProgressUI();
+}
+function getMistakes(){ try{return JSON.parse(localStorage.getItem(LS_MISTAKES)||'[]');}catch(e){return [];} }
+function addMistake(entry){
+  const arr = getMistakes();
+  arr.push(entry);
+  localStorage.setItem(LS_MISTAKES, JSON.stringify(arr));
+}
+function removeMistake(idx){
+  const arr = getMistakes();
+  arr.splice(idx,1);
+  localStorage.setItem(LS_MISTAKES, JSON.stringify(arr));
+  render();
+}
+function normalize(s){ return (s||'').toString().trim().toLowerCase().replace(/\s+/g,' ').replace(/[.]/g,''); }
+
+let state = { view:'home', slideId:1 };
+
+function go(view, arg){
+  state.view = view;
+  if(arg!==undefined) state.slideId = arg;
+  window.scrollTo(0,0);
+  render();
+  closeSidebar();
+}
+function goSlide(sid){ go('slide', sid); }
+
+function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+
+/* =====================================================================
+   SIDEBAR RENDER
+===================================================================== */
+let collapsedTopics = {}; // topicId -> bool collapsed
+function renderSidebar(){
+  const nav = document.getElementById('topic-nav');
+  let html = '';
+  TOPICS.forEach(top=>{
+    const read = getReadSlides();
+    const allDone = top.slides.every(s=>read.includes(s));
+    const someDone = top.slides.some(s=>read.includes(s));
+    const collapsed = collapsedTopics[top.id];
+    html += `<div class="topic-group">
+      <button class="topic-head ${allDone?'done':''}" onclick="toggleTopic('${top.id}')">
+        <span>${top.title}</span>
+        <span class="status">${allDone?'✓ selesai':(someDone? top.slides.filter(s=>read.includes(s)).length+'/'+top.slides.length : '🔒')}</span>
+      </button>
+      <div class="topic-slides ${collapsed?'collapsed':''}">
+        ${top.slides.map(sid=>`
+          <button class="slide-btn ${read.includes(sid)?'read':''} ${state.view==='slide'&&state.slideId===sid?'active':''}" onclick="goSlide(${sid})">
+            <span class="dot"></span>Slide ${sid} — ${SLIDES[sid].title.length>28?SLIDES[sid].title.slice(0,26)+'…':SLIDES[sid].title}
+          </button>`).join('')}
+      </div>
+    </div>`;
+  });
+  nav.innerHTML = html;
+
+  document.querySelectorAll('.navlinks button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view===state.view);
+  });
+}
+function toggleTopic(tid){ collapsedTopics[tid] = !collapsedTopics[tid]; renderSidebar(); }
+function updateProgressUI(){
+  const read = getReadSlides();
+  const pct = Math.round((read.length/TOTAL_SLIDES)*100);
+  document.getElementById('overall-pct').textContent = pct+'%';
+  document.getElementById('overall-bar').style.width = pct+'%';
+  renderSidebar();
+}
+
+/* =====================================================================
+   VIEWS
+===================================================================== */
+function render(){
+  const main = document.getElementById('main');
+  if(state.view==='home') main.innerHTML = renderHome();
+  else if(state.view==='slide') main.innerHTML = renderSlide(state.slideId);
+  else if(state.view==='flashcards') main.innerHTML = renderFlashcards();
+  else if(state.view==='cheatsheet') main.innerHTML = renderCheatsheet();
+  else if(state.view==='quiz') main.innerHTML = renderQuizHub();
+  else if(state.view==='mistakes') main.innerHTML = renderMistakes();
+  renderSidebar();
+  updateProgressUI();
+  afterRenderHooks();
+}
+
+function renderHome(){
+  const read = getReadSlides();
+  const pct = Math.round((read.length/TOTAL_SLIDES)*100);
+  return `
+    <div class="crumb">BERANDA</div>
+    <h1 class="page-title">Sistem Bilangan &amp; Konversi Bilangan</h1>
+    <div class="card">
+      <h3>Progress belajar lu</h3>
+      <p>Slide ${read.length}/${TOTAL_SLIDES} selesai (${pct}%). Materi ini punya <b>8 topik, 17 slide</b> total — semuanya wajib dipelajari berurutan biar gak ada yang kelewat.</p>
+      <div class="bar" style="margin-top:8px;"><span style="width:${pct}%"></span></div>
+    </div>
+    <div class="card">
+      <h3>Mulai / lanjutkan belajar</h3>
+      <p>Klik topik di sidebar (☰ di HP), atau lanjut dari slide terakhir yang belum selesai.</p>
+      <button class="btn" onclick="goSlide(${firstUnread()})">Lanjutkan ke Slide ${firstUnread()} →</button>
+    </div>
+    <div class="card faint">
+      <h3>Fitur lain</h3>
+      <p>▤ <b>Flashcard</b> — hafalan cepat konsep penting seluruh materi.<br>
+      ▥ <b>Cheat Sheet</b> — rumus, tabel, dan istilah untuk review kilat.<br>
+      ? <b>Kuis Acak</b> — soal cek pemahaman dari semua slide, urutan diacak.<br>
+      ✕ <b>Kesalahan Gue</b> — daftar soal yang pernah lu jawab salah, bisa dicoba lagi.</p>
+    </div>
+  `;
+}
+function firstUnread(){
+  const read = getReadSlides();
+  for(let i=1;i<=TOTAL_SLIDES;i++) if(!read.includes(i)) return i;
+  return 1;
+}
+
+function renderSlide(sid){
+  const s = SLIDES[sid];
+  const top = topicOf(sid);
+  markRead(sid);
+  let html = `
+    <div class="crumb">${top.title.toUpperCase()}</div>
+    <div class="slide-progress">Slide ${sid} dari ${TOTAL_SLIDES}</div>
+    <h1 class="page-title">${s.title}</h1>
+
+    <div class="card">
+      <span class="badge">Isi inti slide</span>
+      <p>${s.core}</p>
+    </div>
+  `;
+
+  if(s.simple){
+    html += `
+    <div class="card">
+      <h3>Penjelasan sederhana</h3>
+      <p id="simple-text-${sid}">${s.simple.normal}</p>
+      <div class="confuse-wrap">
+        <button class="confuse-btn" onclick="toggleConfuse(${sid})">🤔 Gue gak paham</button>
+        <div class="confuse-levels" id="confuse-${sid}">
+          <div class="confuse-tab-row">
+            <button class="confuse-tab active" onclick="setConfuseLevel(${sid},'normal',this)">Versi normal</button>
+            <button class="confuse-tab" onclick="setConfuseLevel(${sid},'gampang',this)">Versi gampang</button>
+            <button class="confuse-tab" onclick="setConfuseLevel(${sid},'dasar',this)">Versi super dasar</button>
+          </div>
+          <div class="confuse-body" id="confuse-body-${sid}">${s.simple.normal}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if(s.terms && s.terms.length){
+    html += `<div class="card"><h3>Istilah penting</h3><div class="terms">
+      ${s.terms.map(t=>`<div class="term"><b>${t.t}</b><br>${t.d}</div>`).join('')}
+    </div></div>`;
+  }
+
+  if(s.formula){
+    html += `<div class="card"><h3>Rumus</h3>
+      <div class="formula-box">${s.formula.expr}<span class="sub">${s.formula.sub}</span></div>
+    </div>`;
+  }
+
+  if(s.table){
+    html += `<div class="card"><h3>Tabel</h3><table class="datatable"><thead><tr>${s.table.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>
+      ${s.table.rows.map(r=>`<tr>${r.map((c,i)=> i===0 && s.table.headers[0].includes('Hex') && r.length===5 ? `<td><span class="swatch" style="background:${c}"></span>${c}</td>` : `<td>${c}</td>`).join('')}</tr>`).join('')}
+    </tbody></table></div>`;
+  }
+
+  if(s.examples){
+    s.examples.forEach(ex=>{
+      html += `<div class="card"><h3>Contoh: ${ex.label}</h3>
+        ${ex.steps.map((st,i)=>`<div class="example-step"><span class="n">${i+1}.</span><span>${st}</span></div>`).join('')}
+      </div>`;
+    });
+  }
+
+  if(s.why){
+    html += `<div class="card why-box"><h3>Kenapa?</h3><p>${s.why}</p></div>`;
+  }
+
+  if(s.extra){
+    html += `<div class="card extra-box"><p>${s.extra}</p></div>`;
+  }
+
+  if(s.widget){
+    html += renderWidget(s.widget, sid);
+  }
+
+  if(s.isGroupExercise){
+    html += renderGroupExercises();
+  }
+
+  if(s.quiz){
+    html += renderQuizCard(sid, s.quiz);
+  }
+
+  const prev = sid>1?sid-1:null, next = sid<TOTAL_SLIDES?sid+1:null;
+  html += `<div class="nav-footer">
+    <button ${!prev?'disabled':''} onclick="${prev?`goSlide(${prev})`:''}">← Slide sebelumnya</button>
+    <button ${!next?'disabled':''} onclick="${next?`goSlide(${next})`:''}">Slide berikutnya →</button>
+  </div>`;
+
+  return html;
+}
+
+function toggleConfuse(sid){
+  document.getElementById('confuse-'+sid).classList.toggle('open');
+}
+function setConfuseLevel(sid, level, btn){
+  document.querySelectorAll(`#confuse-${sid} .confuse-tab`).forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('confuse-body-'+sid).textContent = SLIDES[sid].simple[level];
+}
+
+/* ---- quiz card (single, per-slide) ---- */
+function renderQuizCard(sid, q){
+  const optId = i=>`q-${sid}-opt-${i}`;
+  return `<div class="card">
+    <h3>Cek pemahaman</h3>
+    <div class="quiz-box">
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-opts" id="quizopts-${sid}">
+        ${q.opts.map((o,i)=>`<button class="quiz-opt" id="${optId(i)}" onclick="answerQuiz(${sid}, ${i})">${o}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="quizfb-${sid}"></div>
+    </div>
+  </div>`;
+}
+function answerQuiz(sid, choice){
+  const q = SLIDES[sid].quiz;
+  const opts = document.querySelectorAll(`#quizopts-${sid} .quiz-opt`);
+  opts.forEach((el,i)=>{
+    el.onclick=null;
+    if(i===q.correct) el.classList.add('correct');
+    else if(i===choice) el.classList.add('wrong');
+  });
+  const fb = document.getElementById(`quizfb-${sid}`);
+  const correct = choice===q.correct;
+  fb.className = 'quiz-feedback show '+(correct?'ok':'bad');
+  fb.innerHTML = (correct?'✓ Benar. ':'✕ Kurang tepat. ') + q.explain;
+  if(!correct){
+    addMistake({source:`Slide ${sid}`, question:q.q, userAnswer:q.opts[choice], correctAnswer:q.opts[q.correct], explain:q.explain});
+  }
+}
+
+/* ---- group exercises (slide 16) ---- */
+function renderGroupExercises(){
+  let html = `<div class="card"><h3>7 Soal Latihan Kelompok</h3><p>Kerjakan satu-satu, lalu cek jawaban lu.</p></div>`;
+  GROUP_EXERCISES.forEach(ex=>{
+    html += `<div class="card">
+      <span class="badge blue">Soal ${ex.n}</span>
+      <p>${ex.q}</p>
+      <div class="short-answer">
+        <input type="text" id="ge-input-${ex.n}" placeholder="Ketik jawaban lu di sini...">
+        <button class="btn" onclick="checkGroupAnswer(${ex.n})">Cek Jawaban</button>
+        <button class="btn ghost" onclick="showGroupAnswer(${ex.n})">Tampilkan Jawaban</button>
+      </div>
+      <div class="result-box" id="ge-result-${ex.n}" style="display:none;"></div>
+    </div>`;
+  });
+  return html;
+}
+function checkGroupAnswer(n){
+  const ex = GROUP_EXERCISES.find(e=>e.n===n);
+  const input = document.getElementById('ge-input-'+n);
+  const val = normalize(input.value);
+  const box = document.getElementById('ge-result-'+n);
+  box.style.display = 'block';
+  if(ex.type==='open'){
+    box.className='result-box';
+    box.innerHTML = `<b>Ini soal jawaban terbuka.</b><br>${ex.answerDisplay}: ${ex.explain}`;
+    return;
+  }
+  const correct = val.length>0 && ex.accept.some(a=>normalize(a)===val);
+  if(correct){
+    box.className='result-box ok';
+    box.innerHTML = `✓ Benar! Jawaban: <b>${ex.answerDisplay}</b><br>${ex.explain}`;
+  } else {
+    box.className='result-box err';
+    box.innerHTML = `✕ Belum tepat. Jawaban lu: "${input.value||'(kosong)'}"<br>Jawaban benar: <b>${ex.answerDisplay}</b><br>${ex.explain}
+      <br><button class="btn ghost" style="margin-top:8px;" onclick="retryGroup(${n})">Coba Lagi</button>`;
+    addMistake({source:`Latihan Kelompok — Soal ${n}`, question:ex.q, userAnswer:input.value||'(kosong)', correctAnswer:ex.answerDisplay, explain:ex.explain});
+  }
+}
+function showGroupAnswer(n){
+  const ex = GROUP_EXERCISES.find(e=>e.n===n);
+  const box = document.getElementById('ge-result-'+n);
+  box.style.display='block';
+  box.className='result-box';
+  box.innerHTML = `<b>Jawaban: ${ex.answerDisplay}</b><br>${ex.explain}`;
+}
+function retryGroup(n){
+  document.getElementById('ge-input-'+n).value='';
+  document.getElementById('ge-result-'+n).style.display='none';
+  document.getElementById('ge-input-'+n).focus();
+}
+
+/* =====================================================================
+   INTERACTIVE WIDGETS
+===================================================================== */
+function charVal(c){
+  c = c.toUpperCase();
+  if(c>='0'&&c<='9') return c.charCodeAt(0)-48;
+  if(c>='A'&&c<='F') return c.charCodeAt(0)-55;
+  return NaN;
+}
+function valChar(v){ return v<10? String(v) : String.fromCharCode(55+v); }
+
+function renderWidget(type, sid){
+  if(type==='positional10'||type==='positional2'||type==='positional8'||type==='positional16'){
+    const base = {positional10:10, positional2:2, positional8:8, positional16:16}[type];
+    const wid = 'pos'+sid;
+    return `<div class="widget">
+      <label>🔢 Kalkulator posisional — masukkan angka basis-${base} (boleh pakai koma untuk pecahan, misal ${base===10?'325 atau 9407,108':base===2?'1101 atau 0,101':base===8?'647,35':'584AED atau E,1A'})</label>
+      <input type="text" id="${wid}-in" placeholder="Contoh: ${base===10?'325':base===2?'1101':base===8?'647':'584AED'}" oninput="calcPositional('${wid}',${base})">
+      <div class="result-box" id="${wid}-out" style="margin-top:12px;"></div>
+    </div>`;
+  }
+  if(type==='rgbBitDepth'){
+    return `<div class="widget">
+      <label>🎨 Coba: masukkan nilai 0–255 untuk kanal Merah, lihat representasi binernya</label>
+      <input type="number" id="rgbbit-in" min="0" max="255" placeholder="Contoh: 255" oninput="calcRgbBit()">
+      <div class="result-box" id="rgbbit-out" style="margin-top:12px;"></div>
+    </div>`;
+  }
+  if(type==='colorConverter'){
+    return `<div class="widget">
+      <label>🎨 Masukkan kode warna hex (misal FF5733) untuk lihat pecahan RGB-nya</label>
+      <input type="text" id="hexconv-in" placeholder="Contoh: FF5733" oninput="calcHexToRgb()">
+      <div class="result-box" id="hexconv-out" style="margin-top:12px;"></div>
+    </div>`;
+  }
+  if(type==='termConverter'){
+    return `<div class="widget">
+      <label>🔢 Coba angka lain: masukkan bilangan desimal (0–255), lihat pemecahan pangkat 2-nya</label>
+      <input type="number" id="term-in" min="0" max="255" placeholder="Contoh: 98" oninput="calcTerm()">
+      <div class="result-box" id="term-out" style="margin-top:12px;"></div>
+    </div>`;
+  }
+  if(type==='divisionConverter'){
+    return `<div class="widget">
+      <label>➗ Coba angka lain: masukkan bilangan desimal, pilih basis tujuan</label>
+      <div class="chip-row" id="div-basechips">
+        <button class="chip active" onclick="setDivBase(2,this)">Basis 2</button>
+        <button class="chip" onclick="setDivBase(8,this)">Basis 8</button>
+        <button class="chip" onclick="setDivBase(16,this)">Basis 16</button>
+      </div>
+      <input type="number" id="div-in" min="0" placeholder="Contoh: 98" oninput="calcDivision()">
+      <div id="div-out" style="margin-top:12px;"></div>
+    </div>`;
+  }
+  if(type==='rgbToHex'){
+    return `<div class="widget">
+      <label>🎨 Masukkan nilai R, G, B (0–255) untuk konversi ke hex, langkah demi langkah</label>
+      <div class="widget-row">
+        <div><label>R</label><input type="number" id="rh-r" min="0" max="255" value="34" oninput="calcRgbToHex()"></div>
+        <div><label>G</label><input type="number" id="rh-g" min="0" max="255" value="177" oninput="calcRgbToHex()"></div>
+        <div><label>B</label><input type="number" id="rh-b" min="0" max="255" value="76" oninput="calcRgbToHex()"></div>
+      </div>
+      <div class="result-box" id="rh-out"></div>
+    </div>`;
+  }
+  return '';
+}
+
+function calcPositional(wid, base){
+  const raw = document.getElementById(wid+'-in').value.trim();
+  const out = document.getElementById(wid+'-out');
+  if(!raw){ out.innerHTML=''; out.className='result-box'; return; }
+  const parts = raw.replace(',', '.').split('.');
+  const intPart = parts[0]||'', fracPart = parts[1]||'';
+  const allDigits = (intPart+fracPart);
+  let valid = true;
+  for(const c of allDigits){ if(isNaN(charVal(c)) || charVal(c)>=base){ valid=false; break; } }
+  if(allDigits.length===0) valid=false;
+  if(!valid){
+    out.className='result-box err';
+    out.innerHTML = `✕ Ada digit yang tidak valid untuk basis-${base} (digit harus 0${base>1?'..'+valChar(base-1):''}).`;
+    return;
+  }
+  let rows = [], total = 0;
+  for(let i=0;i<intPart.length;i++){
+    const pos = intPart.length-1-i;
+    const d = charVal(intPart[i]);
+    const val = d*Math.pow(base,pos);
+    total += val;
+    rows.push(`${intPart[i]} × ${base}^${pos} = ${val}`);
+  }
+  for(let i=0;i<fracPart.length;i++){
+    const pos = -(i+1);
+    const d = charVal(fracPart[i]);
+    const val = d*Math.pow(base,pos);
+    total += val;
+    rows.push(`${fracPart[i]} × ${base}^${pos} = ${val.toFixed(8).replace(/0+$/,'').replace(/\.$/,'')}`);
+  }
+  out.className='result-box ok';
+  out.innerHTML = rows.map(r=>`<div class="expansion-row"><span>${r}</span></div>`).join('') +
+    `<div class="expansion-row"><span>Total (basis 10)</span><span>${parseFloat(total.toFixed(8))}</span></div>`;
+}
+
+function calcRgbBit(){
+  const v = parseInt(document.getElementById('rgbbit-in').value);
+  const out = document.getElementById('rgbbit-out');
+  if(isNaN(v)||v<0||v>255){ out.innerHTML = v>255||v<0? '✕ Nilai harus 0-255.' : ''; out.className='result-box'+((v>255||v<0)?' err':''); return; }
+  const bin = v.toString(2).padStart(8,'0');
+  out.className='result-box ok';
+  out.innerHTML = `Desimal ${v} → Biner 8-bit: <b>${bin}</b><br>Cek: ${bin.split('').map((b,i)=>`${b}×2${7-i===0?'':'^'+(7-i)}`).join(' + ')} = ${v}`;
+}
+
+function calcHexToRgb(){
+  let hex = document.getElementById('hexconv-in').value.trim().replace('#','');
+  const out = document.getElementById('hexconv-out');
+  if(hex.length!==6 || !/^[0-9a-fA-F]{6}$/.test(hex)){
+    out.className='result-box'+(hex.length? ' err':'');
+    out.innerHTML = hex.length? '✕ Masukkan 6 digit heksadesimal valid (0-9, A-F).' : '';
+    return;
+  }
+  const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+  out.className='result-box ok';
+  out.innerHTML = `<span class="swatch" style="background:#${hex}"></span>#${hex.toUpperCase()}<br>
+    R = ${hex.slice(0,2).toUpperCase()}(hex) = ${r}(desimal)<br>
+    G = ${hex.slice(2,4).toUpperCase()}(hex) = ${g}(desimal)<br>
+    B = ${hex.slice(4,6).toUpperCase()}(hex) = ${b}(desimal)`;
+}
+
+function calcTerm(){
+  const v = parseInt(document.getElementById('term-in').value);
+  const out = document.getElementById('term-out');
+  if(isNaN(v)||v<0){ out.innerHTML=''; out.className='result-box'; return; }
+  let remaining = v, rows = [];
+  for(let p=7;p>=0;p--){
+    const pv = Math.pow(2,p);
+    const digit = remaining>=pv?1:0;
+    if(digit) remaining -= pv;
+    rows.push(`${digit} × 2^${p} (=${pv})`);
+  }
+  out.className='result-box ok';
+  out.innerHTML = rows.map(r=>`<div class="expansion-row"><span>${r}</span></div>`).join('') +
+    `<div class="expansion-row"><span>Biner</span><span>${v.toString(2)}</span></div>`;
+}
+
+let currentDivBase = 2;
+function setDivBase(base, btn){
+  currentDivBase = base;
+  document.querySelectorAll('#div-basechips .chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  calcDivision();
+}
+function calcDivision(){
+  const v = parseInt(document.getElementById('div-in').value);
+  const out = document.getElementById('div-out');
+  if(isNaN(v)||v<0){ out.innerHTML=''; return; }
+  if(v===0){ out.innerHTML = `<div class="result-box ok">0 dalam basis-${currentDivBase} adalah 0</div>`; return; }
+  let n = v, steps = [], remainders = [];
+  while(n>0){
+    const q = Math.floor(n/currentDivBase);
+    const r = n%currentDivBase;
+    steps.push(`${n} ÷ ${currentDivBase} = ${q} sisa ${valChar(r)}`);
+    remainders.push(valChar(r));
+    n = q;
+  }
+  const result = remainders.reverse().join('');
+  out.innerHTML = `<div class="result-box ok">
+    ${steps.map(s=>`<div class="expansion-row"><span>${s}</span></div>`).join('')}
+    <div class="expansion-row"><span>Sisa dibaca dari bawah ke atas</span><span>${result}</span></div>
+  </div>`;
+}
+
+function calcRgbToHex(){
+  const r = parseInt(document.getElementById('rh-r').value)||0;
+  const g = parseInt(document.getElementById('rh-g').value)||0;
+  const b = parseInt(document.getElementById('rh-b').value)||0;
+  const out = document.getElementById('rh-out');
+  const clamp = x=>Math.max(0,Math.min(255,x));
+  const rc=clamp(r), gc=clamp(g), bc=clamp(b);
+  function step(x){
+    const q = Math.floor(x/16), rem = x%16;
+    return `${x} ÷ 16 = ${q} sisa ${rem} → ${valChar(q)}${valChar(rem)}`;
+  }
+  const hex = valChar(Math.floor(rc/16))+valChar(rc%16)+valChar(Math.floor(gc/16))+valChar(gc%16)+valChar(Math.floor(bc/16))+valChar(bc%16);
+  out.innerHTML = `
+    <div class="expansion-row"><span>R: ${step(rc)}</span></div>
+    <div class="expansion-row"><span>G: ${step(gc)}</span></div>
+    <div class="expansion-row"><span>B: ${step(bc)}</span></div>
+    <div class="expansion-row"><span><span class="swatch" style="background:#${hex}"></span>Hasil</span><span>#${hex}</span></div>
+  `;
+}
+
+/* =====================================================================
+   FLASHCARDS
+===================================================================== */
+function renderFlashcards(){
+  return `
+    <div class="crumb">REVIEW CEPAT</div>
+    <h1 class="page-title">Flashcard</h1>
+    <div class="card faint"><p>Tap kartu untuk lihat jawabannya. Ada ${FLASHCARDS.length} kartu dari seluruh materi.</p></div>
+    <div class="flashgrid">
+      ${FLASHCARDS.map((f,i)=>`
+        <div class="flashcard" id="fc-${i}" onclick="flipCard(${i})">
+          <span class="tag">${f.tag}</span>
+          <div class="face-a">${f.a}</div>
+          <div class="face-b">${f.b}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+function flipCard(i){ document.getElementById('fc-'+i).classList.toggle('flipped'); }
+
+/* =====================================================================
+   CHEAT SHEET
+===================================================================== */
+function renderCheatsheet(){
+  return `
+    <div class="crumb">REVIEW KILAT</div>
+    <h1 class="page-title">Cheat Sheet</h1>
+
+    <div class="card">
+      <h3>Rumus notasi posisional</h3>
+      <div class="formula-box">Σ (N × basisⁿ)</div>
+      <table class="datatable">
+        <thead><tr><th>Basis</th><th>Nama</th><th>Simbol digit (N)</th></tr></thead>
+        <tbody>
+          <tr><td>10</td><td>Desimal</td><td>0-9</td></tr>
+          <tr><td>2</td><td>Biner</td><td>0-1</td></tr>
+          <tr><td>8</td><td>Oktal</td><td>0-7</td></tr>
+          <tr><td>16</td><td>Heksadesimal</td><td>0-9, A-F (A=10..F=15)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>2 cara konversi basis-10 ke basis-n</h3>
+      <p><b>Cara 1 — jumlah suku-suku:</b> pecah bilangan jadi kombinasi pangkat basis tujuan yang jumlahnya pas.</p>
+      <p><b>Cara 2 — pembagian berulang:</b> bagi berulang dengan basis tujuan, catat sisa tiap langkah sampai hasil bagi 0, baca sisa dari bawah ke atas.</p>
+    </div>
+
+    <div class="card">
+      <h3>Tabel kode warna hex contoh</h3>
+      <table class="datatable">
+        <thead><tr><th>Hex</th><th>R</th><th>G</th><th>B</th><th>Warna</th></tr></thead>
+        <tbody>
+          <tr><td><span class="swatch" style="background:#FFFFFF"></span>#FFFFFF</td><td>FF</td><td>FF</td><td>FF</td><td>Putih</td></tr>
+          <tr><td><span class="swatch" style="background:#000000"></span>#000000</td><td>00</td><td>00</td><td>00</td><td>Hitam</td></tr>
+          <tr><td><span class="swatch" style="background:#FF5733"></span>#FF5733</td><td>FF</td><td>57</td><td>33</td><td>Oranye-merah</td></tr>
+          <tr><td><span class="swatch" style="background:#1B98E0"></span>#1B98E0</td><td>1B</td><td>98</td><td>E0</td><td>Biru cyan</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Konsep penting</h3>
+      <div class="terms">
+        <div class="term"><b>Bit depth</b>N bit → 2ᴺ kemungkinan nilai (8-bit → 256 nilai, 0-255)</div>
+        <div class="term"><b>1 kanal warna</b>= 8 bit = 2 digit heksadesimal</div>
+        <div class="term"><b>Biner</b>satu-satunya bentuk yang benar-benar disimpan mesin</div>
+        <div class="term"><b>Desimal & hex</b>hanya cara manusia "membaca" data biner</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Kesalahan umum</h3>
+      <p>• Lupa bahwa digit oktal maksimal 7 (bukan 9).<br>
+      • Salah arah membaca sisa pembagian berulang — HARUS dari bawah ke atas.<br>
+      • Lupa huruf A-F pada heksadesimal mewakili 10-15, bukan 1-6.<br>
+      • Salah hitung jumlah digit hex per kanal warna (harusnya 2 digit = 8 bit, bukan 1 digit).</p>
+    </div>
+
+    <div class="card">
+      <h3>Contoh singkat kilat</h3>
+      <p>325₁₀ = 3×10²+2×10¹+5×10⁰ &nbsp;|&nbsp; 1101₂ = 13₁₀ &nbsp;|&nbsp; 647,35₈ = 423,45₁₀ &nbsp;|&nbsp; 584AED₁₆ = 5.786.349₁₀<br>
+      98₁₀ = 1100010₂ &nbsp;|&nbsp; rgb(34,177,76) = #22B14C</p>
+    </div>
+    <div class="card faint"><p>💡 Cheat sheet ini untuk review kilat — bukan pengganti pembahasan lengkap tiap slide. Pastikan lu sudah baca semua topik di sidebar.</p></div>
+  `;
+}
+
+/* =====================================================================
+   RANDOM QUIZ HUB
+===================================================================== */
+let quizPool = [], quizIndex = 0, quizScore = 0;
+function buildQuizPool(){
+  quizPool = Object.keys(SLIDES).filter(k=>SLIDES[k].quiz).map(k=>({sid:k, ...SLIDES[k].quiz}));
+  // shuffle
+  for(let i=quizPool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [quizPool[i],quizPool[j]]=[quizPool[j],quizPool[i]]; }
+  quizIndex = 0; quizScore = 0;
+}
+function renderQuizHub(){
+  if(quizPool.length===0) buildQuizPool();
+  if(quizIndex>=quizPool.length){
+    return `
+      <div class="crumb">KUIS ACAK</div>
+      <h1 class="page-title">Selesai!</h1>
+      <div class="card"><h3>Skor lu: ${quizScore} / ${quizPool.length}</h3>
+        <p>${quizScore===quizPool.length? 'Mantap, semua benar!' : 'Cek halaman "Kesalahan Gue" untuk lihat soal yang masih salah.'}</p>
+        <button class="btn" onclick="buildQuizPool(); go('quiz')">Ulangi Kuis</button>
+      </div>`;
+  }
+  const q = quizPool[quizIndex];
+  return `
+    <div class="crumb">KUIS ACAK · Soal ${quizIndex+1} dari ${quizPool.length}</div>
+    <h1 class="page-title">Cek Pemahaman</h1>
+    <div class="card">
+      <span class="badge">Dari Slide ${q.sid}</span>
+      <div class="quiz-box">
+        <div class="quiz-q">${q.q}</div>
+        <div class="quiz-opts" id="hubopts">
+          ${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answerHubQuiz(${i})">${o}</button>`).join('')}
+        </div>
+        <div class="quiz-feedback" id="hubfb"></div>
+        <button class="btn ghost" style="margin-top:14px;display:none;" id="hub-next" onclick="quizIndex++; go('quiz')">Soal berikutnya →</button>
+      </div>
+    </div>
+  `;
+}
+function answerHubQuiz(choice){
+  const q = quizPool[quizIndex];
+  const opts = document.querySelectorAll('#hubopts .quiz-opt');
+  opts.forEach((el,i)=>{ el.onclick=null; if(i===q.correct) el.classList.add('correct'); else if(i===choice) el.classList.add('wrong'); });
+  const correct = choice===q.correct;
+  if(correct) quizScore++;
+  else addMistake({source:`Kuis Acak — Slide ${q.sid}`, question:q.q, userAnswer:q.opts[choice], correctAnswer:q.opts[q.correct], explain:q.explain});
+  const fb = document.getElementById('hubfb');
+  fb.className = 'quiz-feedback show '+(correct?'ok':'bad');
+  fb.innerHTML = (correct?'✓ Benar. ':'✕ Kurang tepat. ')+q.explain;
+  document.getElementById('hub-next').style.display='block';
+}
+
+/* =====================================================================
+   MISTAKES ("Kesalahan Gue")
+===================================================================== */
+function renderMistakes(){
+  const mistakes = getMistakes();
+  if(mistakes.length===0){
+    return `
+      <div class="crumb">REVIEW KESALAHAN</div>
+      <h1 class="page-title">📕 Kesalahan Gue</h1>
+      <div class="empty-state"><div class="big">✓</div>Belum ada kesalahan tercatat. Kerjakan latihan/kuis dulu — soal yang salah bakal muncul di sini otomatis.</div>
+    `;
+  }
+  return `
+    <div class="crumb">REVIEW KESALAHAN</div>
+    <h1 class="page-title">📕 Kesalahan Gue</h1>
+    <div class="card faint"><p>${mistakes.length} soal tercatat pernah lu jawab salah. Pelajari lagi pembahasannya di bawah.</p></div>
+    ${mistakes.map((m,i)=>`
+      <div class="mistake-card">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-bottom:6px;">${m.source}</div>
+        <div class="q">${m.question}</div>
+        <div class="ans-row wrong">Jawaban lu: ${m.userAnswer}</div>
+        <div class="ans-row right">Jawaban benar: ${m.correctAnswer}</div>
+        <p style="margin-top:8px;">${m.explain}</p>
+        <button class="btn ghost" style="margin-top:8px;" onclick="removeMistake(${i})">Hapus dari daftar</button>
+      </div>
+    `).join('')}
+  `;
+}
+
+/* =====================================================================
+   INIT
+===================================================================== */
+function afterRenderHooks(){}
+render();
+</script>
+</body>
+</html>
